@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game_bilet', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('game_player_id');
-            $table->unsignedBigInteger('bilet_id');
-            $table->tinyInteger('status')->default(0)->comment("4 -> active, 21 -> close");
+            $table->string("name");
+            $table->string("chat_id");
+            $table->string("langitude")->nullable();
+            $table->string("latitude")->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game_bilet');
+        Schema::dropIfExists('groups');
     }
 };

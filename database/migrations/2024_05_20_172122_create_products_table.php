@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('circles', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('info')->nullable();
-            $table->unsignedBigInteger('lang_id')->nullable();
+            $table->string('name',100)->nullable();
+            $table->string('info',250)->nullable();
+            $table->double('price')->default(0);
+            $table->double('cost_price')->default(0);
+            $table->string('image',100)->nullable();
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('circles');
+        Schema::dropIfExists('products');
     }
 };
