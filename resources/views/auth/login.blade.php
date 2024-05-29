@@ -3,16 +3,13 @@
 @section('content')
     <div class="login-box">
         <div class="login-logo">
-
         </div>
         <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to CASH FLOW</p>
-
+                <p class="login-box-msg">Sign in to FOOD ME</p>
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
-
                     <div class="input-group mb-3">
                         <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email" value="{{ old('email') }}" required autocomplete="email" autofocus>
                         @error('email')
