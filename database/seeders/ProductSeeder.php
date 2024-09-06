@@ -86,6 +86,14 @@ class ProductSeeder extends Seeder
                 'image' => "tovuq_jarkob.jpg",
                 'status' => 1,
             ],
+            [
+                'name' => "DO'LMA 2",
+                'info' => "DO'LMA,SALAD,SUV,NON",
+                'price' => 35000,
+                'cost_price' => 26000,
+                'image' => "tovuq_jarkob.jpg",
+                'status' => 1,
+            ],
         ];
         foreach ($datas as $data){
             Product::create($data);
