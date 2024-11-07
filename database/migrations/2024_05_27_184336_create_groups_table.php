@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("chat_id");
-            $table->string("langitude")->nullable();
+            $table->string("type")->nullable();
+            $table->string("from_id")->nullable();
             $table->string("latitude")->nullable();
+            $table->string("longitude")->nullable();
+            $table->integer("days")->nullable();
             $table->timestamps();
         });
     }

@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class Payment extends Model
 {
     use HasFactory;
 
-    protected $table = 'groups';
+    protected $table = 'payments';
 
     protected $guarded = [];
 
-    public function from()
+    public function package()
     {
-        return $this->belongsTo(User::class,'from_id','chat_id');
+        return $this->belongsTo(Package::class,'invoice_id','id');
     }
 }

@@ -48,6 +48,28 @@ class TelegramService
             'message_id' => $message_id,
         ],'deleteMessage');
     }
+
+    public static function sendPhoto($chat_id, $photo, $caption = null, $reply_markup = null, $parse_mode = null)
+    {
+        return TelegramGateway::send([
+            'chat_id' => $chat_id,
+            'photo' => $photo,
+            'caption' => $caption,
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ],'sendPhoto');
+    }
+
+    public static function editMessageCaption($chat_id, $message_id, $caption, $reply_markup=null, $parse_mode = null)
+    {
+        return TelegramGateway::send([
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'caption' => $caption,
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ],'editMessageCaption');
+    }
 }
 
 

@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('packages', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('package_id')->nullable();
-            $table->unsignedBigInteger("user_id")->nullable();
-            $table->unsignedBigInteger('product_id');
-            $table->integer("count")->default(1);
-            $table->double('price')->default(35000);
-            $table->double('benefit_price')->default(5000);
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger("group_id")->nullable();
+            $table->string("message_id")->nullable();
+            $table->date("date");
+            $table->string("phone",30)->nullable();
+            $table->string("longitude")->nullable();
+            $table->string("latitude")->nullable();
             $table->tinyInteger("status")->default(0)->comment("0->buyurtma qabul qilindi, 1->To'landi, 2->bekor qilindi, 4 -> Yetkazib berilgan");
             $table->timestamps();
         });
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('packages');
     }
 };
