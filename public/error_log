@@ -1,1 +1,6 @@
 [16-Mar-2024 03:44:44 UTC] PHP Fatal error:  Cannot declare class App\Http\Controllers\WebhookController, because the name is already in use in /home/atomicuz/public_html/app/Http/Controllers/Telegram/WebhookController.php on line 10
+[07-Nov-2024 10:06:03 Asia/Tashkent] PHP Warning:  require(/home/atomicuz/foodme.atomic.uz/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/atomicuz/foodme.atomic.uz/public/index.php on line 34
+[07-Nov-2024 10:06:03 Asia/Tashkent] PHP Fatal error:  Uncaught Error: Failed opening required '/home/atomicuz/foodme.atomic.uz/public/../vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/atomicuz/foodme.atomic.uz/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/atomicuz/foodme.atomic.uz/public/index.php on line 34

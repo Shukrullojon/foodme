@@ -1,0 +1,5 @@
+[07-Nov-2024 10:07:03 Asia/Tashkent] PHP Warning:  require(/home/atomicuz/foodme.atomic.uz/vendor/autoload.php): Failed to open stream: No such file or directory in /home/atomicuz/foodme.atomic.uz/artisan on line 18
+[07-Nov-2024 10:07:03 Asia/Tashkent] PHP Fatal error:  Uncaught Error: Failed opening required '/home/atomicuz/foodme.atomic.uz/vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/atomicuz/foodme.atomic.uz/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /home/atomicuz/foodme.atomic.uz/artisan on line 18
