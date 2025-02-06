@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('package_id')->nullable();
-            $table->unsignedBigInteger("user_id")->nullable();
-            $table->unsignedBigInteger('product_id');
-            $table->integer("count")->default(1);
-            $table->double('price')->default(35000);
-            $table->double('benefit_price')->default(5000);
-            $table->tinyInteger("status")->default(0)->comment("0->buyurtma qabul qilindi, 1->To'landi, 2->bekor qilindi, 4 -> Yetkazib berilgan");
+            $table->foreignId('user_id')->constrained('users'); // Foydalanuvchi
+            $table->string('payment_type'); // To'lov turi (naqt/karta)
+            $table->decimal('total_price', 10, 2); // Umumiy narx
+            $table->decimal('discounted_price', 10, 2)->nullable(); // Chegirma (agar karta orqali bo'lsa)
+            $table->string('status')->default('pending'); // Buyurtma holati
             $table->timestamps();
         });
     }

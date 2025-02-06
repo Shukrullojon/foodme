@@ -17,15 +17,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->rememberToken()->nullable();
-            $table->string('name')->nullable();
-            $table->string('chat_id')->nullable();
-            $table->string('phone',20)->nullable();
-            $table->string('first_name',50)->nullable();
-            $table->string('last_name',50)->nullable();
-            $table->string('username',50)->nullable();
-            $table->double("balance")->default(0);
-            $table->tinyInteger('step')->default(0)->nullable();
-            $table->tinyInteger('status')->default(1);
+            $table->string('telegram_id')->unique()->nullable(); // Telegram ID
+            $table->string('first_name')->nullable(); // Foydalanuvchi ismi
+            $table->string('last_name')->nullable(); // Foydalanuvchi familiyasi
+            $table->string('username')->nullable(); // Telegram username
             $table->timestamps();
         });
     }
