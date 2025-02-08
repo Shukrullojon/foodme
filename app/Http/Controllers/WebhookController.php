@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Webhook;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller
@@ -11,6 +12,9 @@ class WebhookController extends Controller
     public function index(Request $request)
     {
         $update = $request->all();
+        Webhook::create([
+            'request' => json_encode($update),
+        ]);
         $chatId = $update['message']['chat']['id'] ?? $update['callback_query']['message']['chat']['id'];
 
         if (isset($update['message'])) {
@@ -35,7 +39,7 @@ class WebhookController extends Controller
 
     public function sendMenu($chatId)
     {
-        return $this->sendMessage($chatId, "👋 Xush kelibsiz! Quyidagi bo‘limlardan birini tanlang:", [
+        return $this->sendMessage($chatId, "❄️ Assalomu alaykum! Qaysi bo‘lim sizni qiziqtiradi? Tanlang, davom etamiz!", [
             "inline_keyboard" => [
                 [["text" => "🍽 Menu", "callback_data" => "menu"]],
                 [["text" => "📞 Aloqa", "callback_data" => "contact"]]
@@ -98,11 +102,20 @@ class WebhookController extends Controller
 
     private function sendMessage($chatId, $text, $keyboard = null)
     {
-        return response()->json([
-            "chat_id" => $chatId,
-            "text" => $text,
-            "reply_markup" => $keyboard ? json_encode($keyboard) : null,
-            "parse_mode" => "HTML"
-        ]);
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'reply_markup' => json_encode($keyboard, true),
+        ];
+        $url = "https://api.telegram.org/bot6803287360:AAF6L9gqeYI8aaYDCqlCoZXS2pW6mgMNtOE/sendMessage";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
     }
 }
