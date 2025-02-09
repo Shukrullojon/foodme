@@ -32,7 +32,7 @@ class FaberlicController extends Controller
                 ]);
                 return true;
             } else if($text == "product"){
-                $products = Fproduct::where('status', 1)->limit(2)->get();
+                $products = Fproduct::where('status', 1)->get();
                 foreach ($products as $product) {
                     $caption = "💫 " . $product->name . "\n\n";
                     $caption .= "ℹ️ " . $product->info . "\n\n";
@@ -50,7 +50,7 @@ class FaberlicController extends Controller
                     ];
                 
                     Http::post('https://api.telegram.org/bot' . $bot_token . '/sendPhoto', [
-                        'chat_id' => $chat_id,
+                        'chat_id' => "7100189062",
                         'photo' => "https://location.jdu.uz/public/images/" . $product->image,
                         'caption' => $caption,
                         'parse_mode' => 'HTML',

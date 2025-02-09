@@ -1,0 +1,1 @@
+[09-Feb-2025 05:46:23 UTC] PHP Fatal error:  Cannot use App\Models\Fproduct as Fproduct because the name is already in use in /home/jduuz/location.jdu.uz/database/seeders/FproductSeeder.php on line 8
