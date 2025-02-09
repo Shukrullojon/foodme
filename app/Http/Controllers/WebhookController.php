@@ -2,10 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\Date;
+use App\Models\Group;
 use App\Models\Order;
+use App\Models\Basket;
+use App\Models\Product;
+use App\Models\Trip;
+use App\Models\User;
 use App\Models\Webhook;
+use App\Models\Package;
+use App\Models\Payment;
+use App\Services\TelegramService;
+use App\Services\RahmatService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class WebhookController extends Controller
 {
@@ -45,60 +55,253 @@ class WebhookController extends Controller
                 [["text" => "📞 Aloqa", "callback_data" => "contact"]]
             ]
         ]);
+
+        if (isset($data['message']['text'])) {
+            $text = $data['message']['text'] ?? null;
+            if ($text == "/start" or $text == "⬅️ ORQAGA") {
+                if ($text == "⬅️ ORQAGA"){
+                    TelegramService::sendMessage($data['message']['from']['id'], "<b>ASOSIY MENYUGA QAYTDINGIZ!</b>", json_encode($this->hide_key), 'HTML');
+                }
+                $this->start_command($data);
+                return true;
+            }else if($text == "/address"){
+                TelegramService::sendMessage($data['message']['chat']['id'], "<b>YETKAZIB BERISH MANZILINI YUBORING!</b>", null, 'HTML');
+                return true;
+            }else if($text == "/works"){
+                TelegramService::sendMessage($data['message']['chat']['id'], "<b>ISH KUNLARINI PASTDAGI KINOPKALARDAN TANLANG!</b>", json_encode($this->work_days), 'HTML');
+                return true;
+            }else {
+                $user = User::where('chat_id', (string)$data['message']['chat']['id'])->first();
+                if (empty($user)) {
+                    return true;
+                } else if ($user->step == 1) {
+
+                } else if ($user->step == 2) {
+                    $this->info_trip($data, $user);
+                }
+            }
+        }else if(isset($data['message']['contact'])){
+            $user = User::where('chat_id', (string)$data['message']['from']['id'])->first();
+            Package::create([
+                'user_id' => $user->id,
+                'date' => date("Y-m-d"),
+                'phone' => $data['message']['contact']['phone_number'],
+                'status' => 0,
+            ]);
+            TelegramService::sendMessage($data['message']['from']['id'], "YETKAZIB BERISH MANZILINI KIRITING!", json_encode($this->back_key), "HTML");
+        }
+
     }
 
-    public function sendProductList($chatId)
+    public function start_command($data)
     {
-        $products = Product::whereDate('created_at', today())->where('status', 1)->get();
-        if ($products->isEmpty()) {
-            return $this->sendMessage($chatId, "Bugun hech qanday ovqat mavjud emas!");
+        $user = User::where('chat_id',(string)$data['message']['from']['id'])->first();
+        if (empty($user)){
+            $user = User::Create(
+                [
+                    'chat_id' => (string)$data['message']['from']['id'],
+                    'first_name' => $data['message']['chat']['first_name'] ?? '',
+                    'last_name' => $data['message']['chat']['last_name'] ?? '',
+                    'username' => $data['message']['chat']['username'] ?? '',
+                    'step' => 0,
+                ]
+            );
+            $text = "<b>✅ NEW USER</b> \n\n";
+            $text .= "chat_id: ".$user->chat_id."\n";
+            $text .= "first_name: ".$user->first_name."\n";
+            $text .= "last_name: ".$user->last_name."\n";
+            $text .= "username: ".$user->username."\n";
+            TelegramService::sendMessage(config('custom.chat_id_orders'), $text, null,"HTML");
         }
+        TelegramService::sendMessage($data['message']['from']['id'], "FOOD ME ga xush kelibsiz!", json_encode($this->main_key), "HTML");
+        return true;
+    }
+
+    public function menu_button()
+    {
+        $products = Product::where('status', 1)->get();
         $keyboard = [];
         foreach ($products as $product) {
-            $keyboard[] = [["text" => $product->name . " 🍛", "callback_data" => "select_food " . $product->id]];
+            $keyboard[] = [
+                [
+                    "text" => $product->name . " 🔥",
+                    "callback_data" => "food_bron " . $product->id
+                ]
+            ];
         }
-        $keyboard[] = [["text" => "⬅️ Orqaga", "callback_data" => "back"]];
-        return $this->sendMessage($chatId, "🍽 Bugungi ovqatlar ro‘yxati:", ["inline_keyboard" => $keyboard]);
+        $keyboard[] = [
+            [
+                "text" => "🛒 SAVAT",
+                "callback_data" => "basket"
+            ],
+        ];
+        $keyboard[] = [
+            [
+                "text" => "⬅️ ORQAGA",
+                "callback_data" => "back"
+            ],
+        ];
+        $list_button = [
+            "inline_keyboard" => $keyboard,
+        ];
+        return $list_button;
     }
 
-    public function selectFood($chatId, $productId)
+    public function one_product($product, $number = 1)
     {
-        $product = Product::find($productId);
-        if (!$product) return $this->sendMessage($chatId, "Ovqat topilmadi.");
-        return $this->sendMessage($chatId, "🍛 <b>{$product->name}</b>\n💵 " . number_format($product->price) . " UZS\n\n✅ Buyurtma qilish uchun miqdorni tanlang:", [
+        $text = "<b>{$product->name} </b>\n\n";
+        $text .= "ℹ️ <i>{$product->info}</i> \n\n";
+        $text .= "💷 " . number_format($product->price) . " UZS \n\n";
+        $list_button = [
             "inline_keyboard" => [
-                [["text" => "1", "callback_data" => "checkout $productId 1"]],
-                [["text" => "⬅️ Orqaga", "callback_data" => "menu"]]
+                [
+                    [
+                        "text" => "➖",
+                        "callback_data" => "bron_minus {$number} " . $product->id
+                    ],
+                    [
+                        "text" => "$number",
+                        "callback_data" => "number"
+                    ],
+                    [
+                        "text" => "➕",
+                        "callback_data" => "bron_plus {$number} " . $product->id
+                    ],
+                ],
+                [
+                    [
+                        "text" => "🛒 SAVATGA QO'SHISH",
+                        "callback_data" => "add_basket {$number} " . $product->id
+                    ],
+                ],
+                [
+                    [
+                        "text" => "⬅️ ORQAGA",
+                        "callback_data" => "back"
+                    ],
+                ],
             ]
-        ]);
+        ];
+        return [
+            'list_button' => $list_button,
+            'text' => $text,
+        ];
     }
 
-    public function checkout($chatId, $productId, $quantity)
+    public function make_basket($data)
     {
-        $product = Product::find($productId);
-        if (!$product) return $this->sendMessage($chatId, "Ovqat topilmadi.");
-
-        $totalPrice = $product->price * $quantity;
-
-        Order::create([
-            'user_id' => $chatId,
-            'product_id' => $productId,
-            'quantity' => $quantity,
-            'total_price' => $totalPrice,
-            'status' => 'pending'
-        ]);
-
-        return $this->sendMessage($chatId, "💵 Umumiy narx: " . number_format($totalPrice) . " UZS\n✅ To‘lovni amalga oshiring va tasdiqlash tugmasini bosing.", [
-            "inline_keyboard" => [["text" => "💳 To‘lov qilish", "callback_data" => "pay"]]
-        ]);
+        $text = "<b>🛒 Savatchada:</b> \n\n";
+        $baskets = Basket::where('chat_id',(string)$data['callback_query']['message']['chat']['id'])->get();
+        $all_price = 0;
+        $keyboard = [];
+        foreach ($baskets as $basket){
+            $text .= "✔️ ".$basket->product->name." ".$basket->count." * ".number_format($basket->price)." = ".number_format($basket->price * $basket->count)." UZS";
+            $text .= "\n";
+            $all_price += $basket->price * $basket->count;
+            $keyboard[] = [
+                [
+                    "text" => "➖",
+                    "callback_data" => "basket_minus " . $basket->id
+                ],
+                [
+                    "text" => $basket->product->name,
+                    "callback_data" => "food_bron " . $basket->id
+                ],
+                [
+                    "text" => "➕",
+                    "callback_data" => "basket_plus " . $basket->id
+                ]
+            ];
+        }
+        if ($all_price > 0)
+            $text .= "\nUmumiy: ".number_format($all_price)." UZS";
+        $keyboard[] = [
+            [
+                "text" => "⬅️ ORQAGA",
+                "callback_data" => "back"
+            ],
+            [
+                "text" => "🚛 BUYURTMA BERISH",
+                "callback_data" => "make_order"
+            ],
+        ];
+        $list_button = [
+            "inline_keyboard" => $keyboard,
+        ];
+        return [
+            'text' => $text,
+            'buttons' => $list_button,
+        ];
     }
 
-    public function confirmPayment($chatId)
-    {
-        Order::where('user_id', $chatId)->latest()->first()->update(['status' => 'paid']);
+    public $contact = [
+        'keyboard' => [
+            [
+                [
+                    'text' => "📞 TELEFON NOMERNI YUBORISH!",
+                    'request_contact' => true
+                ]
+            ],
+            [
+                [
+                    'text' => "⬅️ ORQAGA",
+                ]
+            ]
+        ],
+        'resize_keyboard' => true,
+        'one_time_keyboard' => true
+    ];
 
-        return $this->sendMessage($chatId, "✅ To‘lov qabul qilindi! Buyurtmangiz tayyorlanmoqda.");
-    }
+    public $back_key = [
+        'keyboard' => [
+            [
+                [
+                    'text' => "⬅️ ORQAGA",
+                ]
+            ]
+        ],
+        "resize_keyboard" => true,
+    ];
+    public $main_key = [
+        "inline_keyboard" => [
+            /*[
+                [
+                    "text" => "🔥 TELEGRAM GURUH ORQALI BUYURTMA",
+                    "callback_data" => "easy"
+                ],
+            ],*/
+            [
+                [
+                    "text" => "🍽 MENYU",
+                    "callback_data" => "ordering"
+                ],
+            ],
+            [
+                [
+                    "text" => "🛒 SAVAT",
+                    "callback_data" => "basket"
+                ],
+            ],
+            [
+                [
+                    "text" => "🚛 YETKAZIB BERISH",
+                    "callback_data" => "delivery"
+                ],
+            ],
+            [
+                [
+                    "text" => "📦 BUYURTMALARIM",
+                    "callback_data" => "orders"
+                ],
+            ],
+            [
+                [
+                    "text" => "✋ E'TIROZ VA TAKLIFLAR",
+                    "url" => "https://t.me/ShukrulloDev"
+                ],
+            ],
+        ],
+    ];
 
     private function sendMessage($chatId, $text, $keyboard = null)
     {
@@ -118,4 +321,68 @@ class WebhookController extends Controller
         curl_close($ch);
         return $result;
     }
+
+    public $confirm = [
+        "inline_keyboard" => [
+            [
+                [
+                    "text" => "✅ TASDIQLASH",
+                    "callback_data" => "confirm"
+                ],
+            ],
+            [
+                [
+                    "text" => "⬅️ ORQAGA",
+                    "callback_data" => "back"
+                ],
+            ],
+
+        ],
+    ];
+
+    public $work_days = [
+        "inline_keyboard" => [
+            [
+                [
+                    "text" => "5 ISH KUNI",
+                    "callback_data" => "5_days"
+                ],
+            ],
+            [
+                [
+                    "text" => "6 ISH KUNI",
+                    "callback_data" => "6_days"
+                ],
+            ],
+
+        ],
+    ];
+
+    public $back_inline = [
+        "inline_keyboard" => [
+            [
+                [
+                    "text" => "⬅️ ORQAGA",
+                    "callback_data" => "back"
+                ],
+            ],
+
+        ],
+    ];
+
+    public $back = [
+        "keyboard" => [
+            [
+                [
+                    "text" => "⬅️ ORQAGA",
+                ],
+            ]
+        ],
+        "resize_keyboard" => true,
+    ];
+
+    public $hide_key = [
+        'hide_keyboard' => true,
+    ];
+
 }

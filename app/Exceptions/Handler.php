@@ -31,15 +31,14 @@ class Handler extends ExceptionHandler
 
     public function report(Throwable $e)
     {
-        if ($e->getMessage() != "Unauthenticated." and $e->getMessage() != "The route contacts.html could not be found." and $e->getMessage() != "The route main could not be found."){
-            $text = (string) view('telegram.error',[
-                'info' => $e
-            ]);
-            Http::post('https://api.telegram.org/bot'.config('custom.bot_token').'/sendMessage',[
-                'chat_id' => config('custom.my_chat_id'),
-                'text' => $text,
-                'parse_mode' => 'html'
-            ]);
-        }
+        $text = (string) view('telegram.error',[
+            'info' => $e
+        ]);
+        $bot_token = "7903686816:AAG9W2rjD7uhonezyafMjagi57OiBtRHROM";
+        Http::post('https://api.telegram.org/bot'.$bot_token.'/sendMessage',[
+            'chat_id' => "7127685003",
+            'text' => $text,
+            'parse_mode' => 'html'
+        ]);
     }
 }
