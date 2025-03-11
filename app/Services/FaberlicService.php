@@ -21,14 +21,63 @@ class FaberlicService
 
     public static function sendMessage($chat_id, $text,$reply_markup = null, $parse_mode = null)
     {
-        Http::post('https://api.telegram.org/bot7903686816:AAG9W2rjD7uhonezyafMjagi57OiBtRHROM/sendMessage',[
-            'chat_id' => "7127685003",
+        return FaberlicGateway::send([
+            'chat_id' => $chat_id,
             'text' => $text,
-            'parse_mode' => 'html'
-        ]);
-        
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ], 'sendMessage');
     }
 
+
+    public static function editMessageText($chat_id, $message_id, $text, $reply_markup=null, $parse_mode = null)
+    {
+        return FaberlicGateway::send([
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'text' => $text,
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ],'editMessageText');
+    }
+
+    public static function deleteMessage($chat_id, $message_id)
+    {
+        return FaberlicGateway::send([
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+        ],'deleteMessage');
+    }
+
+    public static function sendPhoto($chat_id, $photo, $caption = null, $reply_markup = null, $parse_mode = null)
+    {
+        return FaberlicGateway::send([
+            'chat_id' => $chat_id,
+            'photo' => $photo,
+            'caption' => $caption,
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ],'sendPhoto');
+    }
+
+    public static function editMessageCaption($chat_id, $message_id, $caption, $reply_markup=null, $parse_mode = null)
+    {
+        return FaberlicGateway::send([
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'caption' => $caption,
+            'reply_markup' => $reply_markup,
+            'parse_mode' => $parse_mode,
+        ],'editMessageCaption');
+    }
+    
+    public static function answerCallbackQuery($callback_query_id,$text = "", $show_alert = false){
+        return FaberlicGateway::send([
+            'callback_query_id' => $callback_query_id,
+            'text' => $text,
+            'show_alert' => $show_alert,
+        ],'answerCallbackQuery');
+    }
 }
 
 

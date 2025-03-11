@@ -6,7 +6,7 @@ namespace App\Gateways;
  * Class TelegramGateway
  * @package App\Gateways
  */
-Class TelegramGateway {
+Class FaberlicGateway{
     /**
      * Sends a request to the Telegram Bot API.
      *

@@ -4,3 +4,9 @@
 Stack trace:
 #0 {main}
   thrown in /home/atomicuz/foodme.atomic.uz/public/index.php on line 34
+[13-Feb-2025 15:45:04 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45
+[13-Feb-2025 15:45:06 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45
+[13-Feb-2025 15:45:09 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45
+[13-Feb-2025 15:45:14 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45
+[13-Feb-2025 15:45:24 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45
+[13-Feb-2025 15:45:41 UTC] PHP Fatal error:  Constant expression contains invalid operations in /home/jduuz/location.jdu.uz/app/Http/Controllers/WebhookController.php on line 45

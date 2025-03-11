@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('username')->nullable();
             $table->integer("friends")->default(0);
             $table->tinyInteger("status")->default(1);
+            $table->integer('balance')->default(0);
+            $table->integer('used_balance')->default(0);
             $table->timestamps();
         });
     }

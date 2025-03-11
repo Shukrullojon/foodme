@@ -15,7 +15,7 @@ Class TelegramGateway {
      * @return mixed The result of the API call.
      */
     public static function send($data, $method){
-        $url = 'https://api.telegram.org/bot'.config('custom.bot_token').'/'.$method;
+        $url = 'https://api.telegram.org/bot6803287360:AAF6L9gqeYI8aaYDCqlCoZXS2pW6mgMNtOE/'.$method;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
