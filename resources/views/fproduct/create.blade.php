@@ -25,7 +25,7 @@
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <label for="info"><strong>Info:</strong></label>{!! Form::label('info',"*",['style'=>"color:red"]) !!}
-                                    {!! Form::text('info', null, ['autocomplete'=>'OFF','id'=>'info','placeholder' => 'Info','required'=>true,'class' => "form-control ".($errors->has('info') ? 'is-invalid' : '')]) !!}
+                                    {!! Form::text('info', null, ['autocomplete'=>'OFF','id'=>'info','placeholder' => 'Info','class' => "form-control ".($errors->has('info') ? 'is-invalid' : '')]) !!}
                                     @if($errors->has('info'))
                                         <span class="error invalid-feedback">{{ $errors->first('info') }}</span>
                                     @endif

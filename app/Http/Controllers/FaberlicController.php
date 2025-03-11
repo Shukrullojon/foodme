@@ -23,7 +23,7 @@ class FaberlicController extends Controller
         $chat_id = $data['message']['chat']['id'] ?? "7127685003";
         $text = $data['message']['text'] ?? null;
         $new_chat_participant = $data['message']['new_chat_participant']['id'] ?? null;
-        
+
         if (isset($data['message']['text'])) {
             return $this->handleTextMessage($chat_id, $text);
         } elseif(isset($data['callback_query'])){
@@ -43,7 +43,7 @@ class FaberlicController extends Controller
             $this->checkPromoCode($chat_id, $text);
         }
     }
-    
+
     private function handleCallbackQuery($chat_id, $callbackData,$callback_query_id){
         if ($callbackData == "order") {
             $this->order($chat_id);
@@ -64,7 +64,7 @@ class FaberlicController extends Controller
         }
         return true;
     }
-    
+
     private function start($chat_id, $text){
         $params = explode(' ', $text);
         $referrerId = $params[1] ?? null;
@@ -87,7 +87,7 @@ class FaberlicController extends Controller
         FaberlicService::sendMessage($chat_id, "<b>Quyidagi tugmalardan foydalanib, kerakli bo‘limni tanlang.</b>", json_encode($this->start_inline_keyboard), 'html');
         return true;
     }
-    
+
     private function checkPromoCode($chat_id, $text){
         $today = now()->format('Y-m-d');
         $cacheKey = "promo_used_$chat_id";
@@ -96,8 +96,8 @@ class FaberlicController extends Controller
             FaberlicService::sendMessage($chat_id, "❌ Siz bugun allaqachon promokod ishlatgansiz. Ertaga yana urinib ko'ring!", null, 'html');
             return;
         }
-        
-        
+
+
         $promoCode = trim($text);
         if (strlen($promoCode) != 6 || !preg_match('/^[A-Za-z]{2}\d{3}[A-Za-z]{1}$/', $promoCode)) {
             FaberlicService::sendMessage($chat_id, "❌ Noto'g'ri format! Promokod 2 harf, 3 raqam va 1 harfdan iborat bo'lishi kerak. Masalan: AB123C", null, 'html');
@@ -110,7 +110,7 @@ class FaberlicController extends Controller
                       ->orWhere('expires_at', '>', now());
             })
             ->first();
-    
+
         if ($promo) {
             if ($promo->times > $promo->used_times) {
                 $promo->used_times++;
@@ -129,20 +129,20 @@ class FaberlicController extends Controller
             }
         } else {
             FaberlicService::sendMessage($chat_id, "❌ Noto'g'ri yoki muddati o'tgan promokod!", null, 'html');
-        }   
+        }
     }
 
     private function sendProducts()
     {
         $products = Fproduct::where('status', 1)->get();
         $shahina_group_id = "-1002422980246";
-        
+
         foreach ($products as $product) {
             $caption = "💫 {$product->name}\n\nℹ️ {$product->info}\n\n";
             if ($product->price != 0) {
                 $caption .= "💲 Narxi: <s>" . number_format($product->old_price) . " so'm</s>  ✅ " . number_format($product->price) . " so'm";
             }
-            
+
             $button = [
                 'inline_keyboard' => [
                     [['text' => '🛒 Buyurtma berish', 'url' => 'https://t.me/shahina_z']],
@@ -160,8 +160,8 @@ class FaberlicController extends Controller
         }
         return true;
     }
-    
-    private function about($chat_id){    
+
+    private function about($chat_id){
             $message = "<b>ℹ️ Biz haqimizda:</b>\n\n"
              . "Shahina Faberlic botiga xush kelibsiz! 😊\n"
              . "Biz sizga sifatli <b>Faberlic mahsulotlarini</b> taklif etamiz. "
@@ -174,7 +174,7 @@ class FaberlicController extends Controller
             FaberlicService::sendMessage($chat_id, $message, null, 'html');
             return true;
     }
-    
+
     private function order($chat_id){
         $categories = Fcategory::where('status', 1)->get();
         $buttons = [];
@@ -186,7 +186,7 @@ class FaberlicController extends Controller
         ]), "html");
         return true;
     }
-    
+
     private function myAccount($chat_id){
         $balance = Fuser::where('chat_id',$chat_id)->first();
         $message = "💳 Mening Hamyonim\n\n";
@@ -198,7 +198,7 @@ class FaberlicController extends Controller
         $message .= "❕ Hamyondagi pullaringizni bizning mahsulotlarga buyurtma berish orqali foydalanishingiz mumkin.";
         FaberlicService::sendMessage($chat_id, $message, null, 'html');
     }
-    
+
     private function getLink($chat_id){
         $referral_link = "https://t.me/shahina_faberlic_bot?start={$chat_id}";
         $message = "📤 Sizning maxsus havolangiz:\n\n";
@@ -207,12 +207,12 @@ class FaberlicController extends Controller
         $message .= "Ushbu havola orqali ro'yxatdan o'tgan har bir do'st uchun <b>1,000 so'm</b> hamyoningizga qo'shiladi!";
         FaberlicService::sendMessage($chat_id, $message, null, 'html');
     }
-    
+
     private function promoCode($chat_id){
         FaberlicService::sendMessage($chat_id, "<b>6 ta belgidan iborat PROMOKOD ni kiriting:</b>", null, 'html');
         Cache::put("expecting_promo_code_$chat_id", true, 300);
     }
-    
+
     private function productsList($chat_id, $category_id){
         $products = Fproduct::where('category_id', $category_id)->where('status', 1)->get();
         if ($products->isEmpty()) {
@@ -221,16 +221,17 @@ class FaberlicController extends Controller
         }
         foreach ($products as $product) {
             $caption = "📌 {$product->name} \n\n";
-            $caption .= "💬 {$product->info}\n\n";
+            if(!empty($product->info))
+                $caption .= "💬 {$product->info}\n\n";
             if ($product->old_price) {
                 $caption .= "🔻 <s>Eski narx: ".number_format($product->old_price)." so'm</s>\n";
             }
             if($product->wallet_discount){
-                $caption .= "💳 Hamyon orqali chegirma: ".number_format($product->wallet_discount)." so'm\n";        
+                $caption .= "💳 Hamyon orqali chegirma: ".number_format($product->wallet_discount)." so'm\n";
             }
             $caption .= "💰 Narxi: ".number_format($product->price)." so'm\n\n";
             if($product->wallet_discount){
-                $caption .= "🎉 Siz uchun maxsus taklif: ".number_format($product->price - $product->wallet_discount)." so'mga xarid qiling\n";        
+                $caption .= "🎉 Siz uchun maxsus taklif: ".number_format($product->price - $product->wallet_discount)." so'mga xarid qiling\n";
             }
             FaberlicService::sendPhoto($chat_id, "https://location.jdu.uz/public/images/".$product->image, $caption, json_encode([
                 'inline_keyboard' => [
@@ -240,7 +241,7 @@ class FaberlicController extends Controller
         }
         return true;
     }
-    
+
     private function addToCart($chat_id, $product_id, $callback_query_id){
         $cart = Cache::get("cart_{$chat_id}", []);
         if (isset($cart[$product_id])) {
@@ -251,42 +252,42 @@ class FaberlicController extends Controller
         Cache::put("cart_{$chat_id}", $cart, now()->addHours(2));
         FaberlicService::answerCallbackQuery($callback_query_id, "Mahsulot savatchaga qo'shildi!", true);
     }
-    
+
     private function showCart($chat_id)
     {
         $cart = Cache::get("cart_{$chat_id}", []);
-        
+
         if (empty($cart)) {
             FaberlicService::sendMessage($chat_id, "🛒 Savatchangiz bo'sh.", null, 'html');
             return;
         }
-        
+
         $totalAmount = 0;             // Yangi narxlar yig'indisi
         $totalOldAmount = 0;          // Eski narxlar yig'indisi
         $totalWalletDiscount = 0;     // Hamyon orqali chegirmalar yig'indisi
         $totalProfit = 0;             // Umumiy foyda (Eski narx - Yangi narx + Hamyon chegirma)
-    
+
         $message = "🛍 <b>Savatchangizdagi mahsulotlar:</b>\n\n";
-    
+
         foreach ($cart as $product_id => $quantity) {
             $product = Fproduct::find($product_id);
             if ($product) {
                 $productTotal = $product->price * $quantity;
                 $totalAmount += $productTotal;
-    
+
                 // Eski narxni hisoblash (agar mavjud bo'lsa)
                 $productOldTotal = $product->old_price ? $product->old_price * $quantity : 0;
                 $totalOldAmount += $productOldTotal;
-    
+
                 // Hamyon orqali chegirma yig'indisi
                 $walletDiscountTotal = $product->wallet_discount * $quantity;
                 $totalWalletDiscount += $walletDiscountTotal;
-    
+
                 // Umumiy foyda: (Eski narx - Yangi narx) + Hamyon chegirma
                 $profit = ($product->old_price ? ($product->old_price - $product->price) * $quantity : 0)
                           + $walletDiscountTotal;
                 $totalProfit += $profit;
-    
+
                 // Mahsulot haqida ma'lumotlar
                 $message .= "📦 <b>{$product->name}</b>\n";
                 if ($product->old_price) {
@@ -298,30 +299,30 @@ class FaberlicController extends Controller
                 $message .= "📊 Jami: " . number_format($productTotal - $product->wallet_discount * $quantity) . " so'm\n\n";
             }
         }
-    
+
         // Umumiy hisoblar
         $message .= "<s>💵 Umumiy eski narxi: " . number_format($totalOldAmount) . " so'm</s>\n";
         $message .= "💵 <b>Umumiy summa:</b> " . number_format($totalAmount) . " so'm\n";
         $message .= "💳 Hamyon orqali chegirma: " . number_format($totalWalletDiscount) . " so'm\n";
         $message .= "📈 Umumiy foyda: " . number_format($totalProfit) . " so'm\n";
-    
+
         // To'lanishi kerak bo'lgan summa
         $totalToPay = $totalAmount - $totalWalletDiscount;
-        $message .= "💲 <b>To'lanishi kerak:</b> " . number_format($totalToPay) . " so'm\n\n"; 
-        
+        $message .= "💲 <b>To'lanishi kerak:</b> " . number_format($totalToPay) . " so'm\n\n";
+
         $message .= "📤 Buyurtmani <a href='https://t.me/shahina_z'>@shahina_z</a> ga yuboring";
-    
+
         FaberlicService::sendMessage($chat_id, $message, null, 'html');
     }
 
 
-    
+
     private function handleNewParticipant($chat_id, $new_chat_participant, $data)
     {
         $first_name = $data['message']['from']['first_name'] ?? "";
         $last_name = $data['message']['from']['last_name'] ?? "";
         $username = $data['message']['from']['username'] ?? "";
-        
+
         $fuser = Fuser::firstOrCreate(
             ['chat_id' => $chat_id],
             [
@@ -331,13 +332,13 @@ class FaberlicController extends Controller
                 'status' => 1,
             ]
         );
-        
+
         if (!Ffriend::where('user_id', $fuser->id)->where('frend_chat_id', $new_chat_participant)->exists()) {
             Ffriend::create(['user_id' => $fuser->id, 'frend_chat_id' => $new_chat_participant]);
             $fuser->increment('friends');
         }
     }
-    
+
     private $start_inline_keyboard = [
         'inline_keyboard' => [
             [
@@ -360,7 +361,7 @@ class FaberlicController extends Controller
             ]
         ]
     ];
-    
+
     private $start_resize_keyboard = [
         "keyboard" => [[["text" => "/start"]]],
         "resize_keyboard" => true,
