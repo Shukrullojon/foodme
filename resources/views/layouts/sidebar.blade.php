@@ -18,6 +18,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a href="{{ route('fproduct.index') }}" class="nav-link {{ Request::is('fproduct*') ? "active":'' }}">
+                        <i class="fa fa-podcast"></i>
+                        <p>F Product</p>
+                    </a>
+                </li>
+
                 <li class="nav-item {{ (Request::is('roles*') or Request::is('permissions*')) ? 'menu-open' : '' }}">
                     <a href="#"
                        class="nav-link {{ (Request::is('roles*') or Request::is('permissions*')) ? 'active' : '' }}">

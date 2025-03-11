@@ -10,4 +10,5 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('roles', \App\Http\Controllers\RoleController::class);
     Route::resource('permissions', \App\Http\Controllers\PermissionController::class);
 
+    Route::resource('fproduct', \App\Http\Controllers\FproductController::class);
 });

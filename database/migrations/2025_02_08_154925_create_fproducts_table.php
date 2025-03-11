@@ -18,8 +18,10 @@ return new class extends Migration
             $table->float('price');
             $table->float('old_price');
             $table->float('come_price');
+            $table->float('wallet_discount')->nullable();
             $table->string("image")->nullable();
             $table->tinyInteger("status")->default(1);
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->timestamps();
         });
     }

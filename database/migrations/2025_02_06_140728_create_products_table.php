@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Ovqat nomi
-            $table->text('info')->nullable(); // Qo‘shimcha ma’lumot
-            $table->decimal('price', 10, 2); // Narx
-            $table->boolean('status')->default(1); // 1 = mavjud, 0 = mavjud emas
+            $table->string('name');
+            $table->text('info')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->decimal('cost_price', 10, 2)->nullable();
+            $table->string('image')->nullable();
+
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
