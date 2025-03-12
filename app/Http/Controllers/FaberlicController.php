@@ -216,8 +216,8 @@ class FaberlicController extends Controller
     private function productsList($chat_id, $category_id){
         $products = Fproduct::where('category_id', $category_id)->where('status', 1)->get();
         if ($products->isEmpty()) {
-            FaberlicService::editMessageText($chat_id, $message_id, "😔 Bu kategoriya uchun mahsulotlar topilmadi.");
-            return;
+            FaberlicService::sendMessage($chat_id, "😔 Bu kategoriya uchun mahsulotlar topilmadi.", null, 'html');
+            return true;
         }
         foreach ($products as $product) {
             $caption = "📌 {$product->name} \n\n";
